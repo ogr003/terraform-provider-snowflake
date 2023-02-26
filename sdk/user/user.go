@@ -19,19 +19,12 @@ var _ Users = (*users)(nil)
 // Users describes all the users related methods that the
 // Snowflake API supports.
 type Users interface {
-	// List all the users by list options.
 	List(ctx context.Context, options ListOptions) ([]*User, error)
-	// Create a new user with create options.
 	Create(ctx context.Context, options CreateOptions) (*User, error)
-	// Read an user by its name.
 	Read(ctx context.Context, name string) (*User, error)
-	// Describe an user by its name.
 	Describe(ctx context.Context, name string) (*User, error)
-	// Update an user by update options.
 	Update(ctx context.Context, name string, options UpdateOptions) (*User, error)
-	// Drop an user by its name.
 	Drop(ctx context.Context, user string) error
-	// Rename an user.
 	Rename(ctx context.Context, old string, new string) error
 }
 
@@ -41,12 +34,10 @@ func New(c *client.Client) Users {
 	}
 }
 
-// users implements Users
 type users struct {
 	client *client.Client
 }
 
-// User represents a Snowflake user.
 type User struct {
 	Comment               string
 	DefaultNamespace      string
@@ -107,12 +98,10 @@ func (e *userEntity) toUser() *User {
 	}
 }
 
-// Drop an user by its name.
 func (u *users) Drop(ctx context.Context, user string) error {
 	return u.client.Drop(ctx, ResourceUser, user)
 }
 
-// Rename an user name.
 func (u *users) Rename(ctx context.Context, old string, new string) error {
 	return u.client.Rename(ctx, ResourceUser, old, new)
 }

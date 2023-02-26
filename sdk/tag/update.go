@@ -42,5 +42,5 @@ func (t *tags) Update(ctx context.Context, o UpdateOptions) (*Tag, error) {
 	if _, err := t.client.Exec(ctx, stmt); err != nil {
 		return nil, fmt.Errorf("db exec: %w", err)
 	}
-	return t.Read(ctx, Options{Name: o.Name, Schema: o.Schema, Database: o.Database})
+	return t.Read(ctx, Options{Name: o.Name, Database: o.Database, Schema: o.Schema})
 }

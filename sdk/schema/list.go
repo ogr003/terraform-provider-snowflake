@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// ListOptions represents the options for listing schemas.
 type ListOptions struct {
 	Database string
 }
@@ -19,7 +18,6 @@ func (o ListOptions) validate() error {
 	return nil
 }
 
-// List all the schemas by list options.
 func (s *schemas) List(ctx context.Context, o ListOptions) ([]*Schema, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate list options: %w", err)
@@ -43,10 +41,9 @@ func (s *schemas) List(ctx context.Context, o ListOptions) ([]*Schema, error) {
 	return entities, nil
 }
 
-// ReadOptions represents the options for reading schema.
 type ReadOptions struct {
-	Name         string
-	DatabaseName string
+	Name     string
+	Database string
 }
 
 func (o ReadOptions) validate() error {
@@ -56,7 +53,6 @@ func (o ReadOptions) validate() error {
 	return nil
 }
 
-// Read a schema by read options.
 func (s *schemas) Read(ctx context.Context, o ReadOptions) (*Schema, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate read options: %w", err)
@@ -64,8 +60,8 @@ func (s *schemas) Read(ctx context.Context, o ReadOptions) (*Schema, error) {
 
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf(`SHOW %s LIKE "%s"`, ResourceSchemas, o.Name))
-	if o.DatabaseName != "" {
-		b.WriteString(fmt.Sprintf(` IN DATABASE "%s"`, o.DatabaseName))
+	if o.Database != "" {
+		b.WriteString(fmt.Sprintf(` IN DATABASE "%s"`, o.Database))
 	}
 	var entity schemaEntity
 	if err := s.client.Read(ctx, b.String(), &entity); err != nil {

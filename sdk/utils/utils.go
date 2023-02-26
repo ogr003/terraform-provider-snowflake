@@ -1,9 +1,14 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
+)
+
+var (
+	ErrNoRecord = errors.New("record not found")
 )
 
 // String returns a pointer to the given string.

@@ -9,7 +9,6 @@ import (
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/utils"
 )
 
-// CreateOptions represents the options for creating a schema.
 type CreateOptions struct {
 	Name              string
 	Database          string
@@ -48,7 +47,6 @@ func (o CreateOptions) build() string {
 	return b.String()
 }
 
-// Create a new schema with create options.
 func (s *schemas) Create(ctx context.Context, o CreateOptions) (*Schema, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate create options: %w", err)
@@ -56,5 +54,5 @@ func (s *schemas) Create(ctx context.Context, o CreateOptions) (*Schema, error) 
 	if _, err := s.client.Exec(ctx, o.build()); err != nil {
 		return nil, fmt.Errorf("db exec: %w", err)
 	}
-	return s.Read(ctx, ReadOptions{Name: o.Name, DatabaseName: o.Database})
+	return s.Read(ctx, ReadOptions{Name: o.Name, Database: o.Database})
 }

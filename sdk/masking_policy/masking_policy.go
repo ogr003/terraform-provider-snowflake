@@ -15,11 +15,17 @@ const (
 	ResourceMaskingPolicies = "MASKING POLICIES"
 )
 
+// Compile-time proof of interface implementation.
+var _ MaskingPolicies = (*maskingPolicies)(nil)
+
 // MaskingPolicies describes all the masking policies related methods that the
 // Snowflake API supports.
 type MaskingPolicies interface {
-	// List all the masking policies bylist  options.
 	List(ctx context.Context, options ListOptions) ([]*MaskingPolicy, error)
+	Create(ctx context.Context, options CreateOptions) (*MaskingPolicy, error)
+	Read(ctx context.Context, o Options) (*MaskingPolicy, error)
+	Describe(ctx context.Context, o Options) (*DescribeMaskingPolicy, error)
+	Drop(ctx context.Context, o Options) error
 }
 
 func New(client *client.Client) MaskingPolicies {
@@ -64,6 +70,29 @@ func (e *maskingPolicyEntity) toMaskingPolicy() *MaskingPolicy {
 	}
 }
 
+type DescribeMaskingPolicy struct {
+	Name       string
+	Signature  string
+	ReturnType string
+	Body       string
+}
+
+type describeMaskingPolicyEntity struct {
+	Name       sql.NullString `db:"name"`
+	Signature  sql.NullString `db:"signature"`
+	ReturnType sql.NullString `db:"return_type"`
+	Body       sql.NullString `db:"body"`
+}
+
+func (d *describeMaskingPolicyEntity) toDescribeMaskingPolicy() *DescribeMaskingPolicy {
+	return &DescribeMaskingPolicy{
+		Name:       d.Name.String,
+		Signature:  d.Signature.String,
+		ReturnType: d.ReturnType.String,
+		Body:       d.Body.String,
+	}
+}
+
 func QualifiedName(name, db, schema string) string {
 	var b strings.Builder
 	if db != "" && schema != "" {
@@ -90,4 +119,11 @@ func (o Options) validate() error {
 		return errors.New("name must not be empty")
 	}
 	return nil
+}
+
+func (m *maskingPolicies) Drop(ctx context.Context, o Options) error {
+	if err := o.validate(); err != nil {
+		return fmt.Errorf("validate drop options: %w", err)
+	}
+	return m.client.Drop(ctx, ResourceMaskingPolicy, QualifiedName(o.Name, o.Database, o.Schema))
 }

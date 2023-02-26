@@ -8,7 +8,6 @@ import (
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/utils"
 )
 
-// CreateOptions represents the options for creating a tag.
 type CreateOptions struct {
 	Options
 
@@ -28,7 +27,6 @@ func (o CreateOptions) build() string {
 	return b.String()
 }
 
-// Create a new tag with create options.
 func (t *tags) Create(ctx context.Context, o CreateOptions) (*Tag, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate create options: %w", err)

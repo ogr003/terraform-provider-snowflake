@@ -7,7 +7,6 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.10.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/luna-duclos/instrumentedsql v1.1.3
-	github.com/pkg/errors v0.9.1
 	github.com/snowflakedb/gosnowflake v1.6.11
 )
 

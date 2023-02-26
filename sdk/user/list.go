@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-// ListOptions represents the options for listing users.
 type ListOptions struct {
 	Name string
 }
@@ -18,7 +17,6 @@ func (o ListOptions) validate() error {
 	return nil
 }
 
-// List all the users by list options.
 func (u *users) List(ctx context.Context, options ListOptions) ([]*User, error) {
 	if err := options.validate(); err != nil {
 		return nil, fmt.Errorf("validate list options: %w", err)
@@ -42,7 +40,6 @@ func (u *users) List(ctx context.Context, options ListOptions) ([]*User, error) 
 	return entities, nil
 }
 
-// Read an user by its name.
 func (u *users) Read(ctx context.Context, name string) (*User, error) {
 	sql := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceUsers, name)
 	var entity userEntity

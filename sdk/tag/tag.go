@@ -20,17 +20,11 @@ var _ Tags = (*tags)(nil)
 // Tags describes all the tags related methods that the
 // Snowflake API supports.
 type Tags interface {
-	// List all the tags bylist  options.
 	List(ctx context.Context, options ListOptions) ([]*Tag, error)
-	// Create a new tag with create options.
 	Create(ctx context.Context, options CreateOptions) (*Tag, error)
-	// Read a tag with read options.
 	Read(ctx context.Context, o Options) (*Tag, error)
-	// Update a tag with update options.
 	Update(ctx context.Context, o UpdateOptions) (*Tag, error)
-	// Drop a tag with drop options.
 	Drop(ctx context.Context, o Options) error
-	// Undrop a tag with undrop options.
 	Undrop(ctx context.Context, o Options) error
 }
 

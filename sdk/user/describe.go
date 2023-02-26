@@ -8,7 +8,6 @@ import (
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/utils"
 )
 
-// Describe an user by its name.
 func (u *users) Describe(ctx context.Context, name string) (*User, error) {
 	stmt := fmt.Sprintf(`DESCRIBE %s LIKE '%s'`, ResourceUser, name)
 	rows, err := u.client.Query(ctx, stmt)

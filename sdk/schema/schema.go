@@ -20,23 +20,15 @@ var _ Schemas = (*schemas)(nil)
 // Schemas describes all the schemas related methods that the
 // Snowflake API supports.
 type Schemas interface {
-	// List all the schemas by list options.
 	List(ctx context.Context, o ListOptions) ([]*Schema, error)
-	// Create a new schema with create options.
 	Create(ctx context.Context, o CreateOptions) (*Schema, error)
-	// Read a schema with read options.
 	Read(ctx context.Context, o ReadOptions) (*Schema, error)
-	// Update attributes of an existing schema.
 	Update(ctx context.Context, name string, o UpdateOptions) (*Schema, error)
-	// Drop a schema by its name.
 	Drop(ctx context.Context, name string) error
-	// Undrop a schema by its name.
 	Undrop(ctx context.Context, name string) error
-	// Rename a schema name.
 	Rename(ctx context.Context, old string, new string) error
 }
 
-// New returns a new Schemas instance.
 func New(c *client.Client) Schemas {
 	return &schemas{
 		client: c,
@@ -84,17 +76,14 @@ func QualifiedName(name string, db string) string {
 	return b.String()
 }
 
-// Drop a schema by its name.
 func (s *schemas) Drop(ctx context.Context, name string) error {
 	return s.client.Drop(ctx, ResourceSchema, name)
 }
 
-// Undrop a schema by its name.
 func (s *schemas) Undrop(ctx context.Context, name string) error {
 	return s.client.Undrop(ctx, ResourceSchema, name)
 }
 
-// Rename a schema.
 func (s *schemas) Rename(ctx context.Context, old string, new string) error {
 	return s.client.Rename(ctx, ResourceSchema, old, new)
 }

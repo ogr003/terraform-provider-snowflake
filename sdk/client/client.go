@@ -9,12 +9,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/luna-duclos/instrumentedsql"
-	"github.com/pkg/errors"
 	"github.com/snowflakedb/gosnowflake"
-)
-
-var (
-	ErrNoRecord = errors.New("record not found")
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/utils"
 )
 
 type Config struct {
@@ -129,8 +125,8 @@ func (c *Client) Query(ctx context.Context, sql string) (*sqlx.Rows, error) {
 
 // Drop a resource
 func (c *Client) Drop(ctx context.Context, resource string, name string) error {
-	sql := fmt.Sprintf(`DROP %s "%s"`, resource, name)
-	if _, err := c.Exec(ctx, sql); err != nil {
+	stmt := fmt.Sprintf(`DROP %s "%s"`, resource, name)
+	if _, err := c.Exec(ctx, stmt); err != nil {
 		return fmt.Errorf("db exec: %w", err)
 	}
 	return nil
@@ -138,8 +134,8 @@ func (c *Client) Drop(ctx context.Context, resource string, name string) error {
 
 // Undrop a resource
 func (c *Client) Undrop(ctx context.Context, resource string, name string) error {
-	sql := fmt.Sprintf(`UNDROP %s "%s"`, resource, name)
-	if _, err := c.Exec(ctx, sql); err != nil {
+	stmt := fmt.Sprintf(`UNDROP %s "%s"`, resource, name)
+	if _, err := c.Exec(ctx, stmt); err != nil {
 		return fmt.Errorf("db exec: %w", err)
 	}
 	return nil
@@ -147,22 +143,38 @@ func (c *Client) Undrop(ctx context.Context, resource string, name string) error
 
 // Rename a resource
 func (c *Client) Rename(ctx context.Context, resource string, old string, new string) error {
-	sql := fmt.Sprintf(`ALTER %s "%s" RENAME TO "%s"`, resource, old, new)
-	if _, err := c.Exec(ctx, sql); err != nil {
+	stmt := fmt.Sprintf(`ALTER %s "%s" RENAME TO "%s"`, resource, old, new)
+	if _, err := c.Exec(ctx, stmt); err != nil {
 		return fmt.Errorf("db exec: %w", err)
 	}
 	return nil
 }
 
-func (c *Client) Read(ctx context.Context, sql string, v interface{}) error {
-	rows, err := c.Query(ctx, sql)
+func (c *Client) Read(ctx context.Context, stmt string, v interface{}) error {
+	rows, err := c.Query(ctx, stmt)
 	if err != nil {
 		return fmt.Errorf("do query: %w", err)
 	}
 	defer rows.Close()
 
 	if !rows.Next() {
-		return ErrNoRecord
+		return utils.ErrNoRecord
+	}
+	if err := rows.StructScan(v); err != nil {
+		return fmt.Errorf("rows scan: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) Describe(ctx context.Context, stmt string, v interface{}) error {
+	rows, err := c.Query(ctx, stmt)
+	if err != nil {
+		return fmt.Errorf("do query: %w", err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return utils.ErrNoRecord
 	}
 	if err := rows.StructScan(v); err != nil {
 		return fmt.Errorf("rows scan: %w", err)

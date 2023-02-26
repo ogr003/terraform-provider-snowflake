@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// CreateOptions represents the options for creating an user.
 type CreateOptions struct {
 	Name                  string
 	Comment               *string
@@ -88,7 +87,6 @@ func (o CreateOptions) build() string {
 	return b.String()
 }
 
-// Create a new user with the create options.
 func (u *users) Create(ctx context.Context, options CreateOptions) (*User, error) {
 	if err := options.validate(); err != nil {
 		return nil, fmt.Errorf("validate create options: %w", err)

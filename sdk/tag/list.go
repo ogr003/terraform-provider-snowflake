@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// ListOptions represents the options for listing tags.
 type ListOptions struct {
 	Database string
 	Schema   string
@@ -23,7 +22,6 @@ func (o ListOptions) validate() error {
 	return nil
 }
 
-// List all the users by list options.
 func (t *tags) List(ctx context.Context, o ListOptions) ([]*Tag, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate list options: %w", err)
@@ -47,7 +45,6 @@ func (t *tags) List(ctx context.Context, o ListOptions) ([]*Tag, error) {
 	return entities, nil
 }
 
-// Read a tag by read options.
 func (t *tags) Read(ctx context.Context, o Options) (*Tag, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate read options: %w", err)

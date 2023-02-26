@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// UpdateOptions represents the options for updating an user.
 type UpdateOptions struct {
 	LoginName             *string
 	DisplayName           *string
@@ -65,7 +64,6 @@ func (o UpdateOptions) build() string {
 	return b.String()
 }
 
-// Update an user by update options.
 func (u *users) Update(ctx context.Context, name string, o UpdateOptions) (*User, error) {
 	if name == "" {
 		return nil, errors.New("name must not be empty")
