@@ -16,6 +16,8 @@ type UpdateOptions struct {
 	AddAllowedValues    *[]string
 	DropAllowedValue    *[]string
 	RemoveAllowedValues *bool
+	MaskingPolicy       *string
+	RemoveMaskingPolicy *bool
 }
 
 func (o UpdateOptions) build() string {
@@ -29,7 +31,13 @@ func (o UpdateOptions) build() string {
 	} else if o.RemoveAllowedValues != nil && *o.RemoveAllowedValues {
 		b.WriteString(` UNSET ALLOWED_VALUES`)
 	} else if o.Comment != nil {
-		b.WriteString(fmt.Sprintf(` SET COMMENT = '%s'`, *o.Comment))
+		b.WriteString(fmt.Sprintf(` SET COMMENT = '%s'`, utils.EscapeString(*o.Comment)))
+	} else if o.MaskingPolicy != nil {
+		if o.RemoveMaskingPolicy != nil && *o.RemoveMaskingPolicy {
+			b.WriteString(fmt.Sprintf(` UNSET MASKING_POLICY %s`, *o.MaskingPolicy))
+		} else {
+			b.WriteString(fmt.Sprintf(` SET MASKING_POLICY %s`, *o.MaskingPolicy))
+		}
 	}
 	return b.String()
 }

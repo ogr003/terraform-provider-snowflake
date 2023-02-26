@@ -23,9 +23,10 @@ type Schemas interface {
 	List(ctx context.Context, o ListOptions) ([]*Schema, error)
 	Create(ctx context.Context, o CreateOptions) (*Schema, error)
 	Read(ctx context.Context, o ReadOptions) (*Schema, error)
-	Update(ctx context.Context, name string, o UpdateOptions) (*Schema, error)
-	Drop(ctx context.Context, name string) error
-	Undrop(ctx context.Context, name string) error
+	Update(ctx context.Context, o UpdateOptions) (*Schema, error)
+	Drop(ctx context.Context, o Options) error
+	Undrop(ctx context.Context, o Options) error
+	Use(ctx context.Context, o Options) error
 	Rename(ctx context.Context, old string, new string) error
 }
 
@@ -76,12 +77,37 @@ func QualifiedName(name string, db string) string {
 	return b.String()
 }
 
-func (s *schemas) Drop(ctx context.Context, name string) error {
-	return s.client.Drop(ctx, ResourceSchema, name)
+type Options struct {
+	Name     string
+	Database string
 }
 
-func (s *schemas) Undrop(ctx context.Context, name string) error {
-	return s.client.Undrop(ctx, ResourceSchema, name)
+func (o Options) validate() error {
+	if o.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+	return nil
+}
+
+func (s *schemas) Drop(ctx context.Context, o Options) error {
+	if err := o.validate(); err != nil {
+		return fmt.Errorf("validate options: %w", err)
+	}
+	return s.client.Drop(ctx, ResourceSchema, QualifiedName(o.Name, o.Database))
+}
+
+func (s *schemas) Undrop(ctx context.Context, o Options) error {
+	if err := o.validate(); err != nil {
+		return fmt.Errorf("validate options: %w", err)
+	}
+	return s.client.Undrop(ctx, ResourceSchema, QualifiedName(o.Name, o.Database))
+}
+
+func (s *schemas) Use(ctx context.Context, o Options) error {
+	if err := o.validate(); err != nil {
+		return fmt.Errorf("validate options: %w", err)
+	}
+	return s.client.Use(ctx, ResourceSchema, QualifiedName(o.Name, o.Database))
 }
 
 func (s *schemas) Rename(ctx context.Context, old string, new string) error {

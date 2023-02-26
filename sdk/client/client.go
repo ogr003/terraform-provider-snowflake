@@ -123,7 +123,6 @@ func (c *Client) Query(ctx context.Context, sql string) (*sqlx.Rows, error) {
 	return sqlx.NewDb(c.conn, "snowflake-instrumented").Unsafe().QueryxContext(ctx, sql)
 }
 
-// Drop a resource
 func (c *Client) Drop(ctx context.Context, resource string, name string) error {
 	stmt := fmt.Sprintf(`DROP %s "%s"`, resource, name)
 	if _, err := c.Exec(ctx, stmt); err != nil {
@@ -132,7 +131,6 @@ func (c *Client) Drop(ctx context.Context, resource string, name string) error {
 	return nil
 }
 
-// Undrop a resource
 func (c *Client) Undrop(ctx context.Context, resource string, name string) error {
 	stmt := fmt.Sprintf(`UNDROP %s "%s"`, resource, name)
 	if _, err := c.Exec(ctx, stmt); err != nil {
@@ -141,7 +139,14 @@ func (c *Client) Undrop(ctx context.Context, resource string, name string) error
 	return nil
 }
 
-// Rename a resource
+func (c *Client) Use(ctx context.Context, resource string, name string) error {
+	stmt := fmt.Sprintf(`USE %s "%s"`, resource, name)
+	if _, err := c.Exec(ctx, stmt); err != nil {
+		return fmt.Errorf("db exec: %w", err)
+	}
+	return nil
+}
+
 func (c *Client) Rename(ctx context.Context, resource string, old string, new string) error {
 	stmt := fmt.Sprintf(`ALTER %s "%s" RENAME TO "%s"`, resource, old, new)
 	if _, err := c.Exec(ctx, stmt); err != nil {

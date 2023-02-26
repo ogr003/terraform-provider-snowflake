@@ -25,6 +25,7 @@ type MaskingPolicies interface {
 	Create(ctx context.Context, options CreateOptions) (*MaskingPolicy, error)
 	Read(ctx context.Context, o Options) (*MaskingPolicy, error)
 	Describe(ctx context.Context, o Options) (*DescribeMaskingPolicy, error)
+	Update(ctx context.Context, o UpdateOptions) (*MaskingPolicy, error)
 	Drop(ctx context.Context, o Options) error
 }
 
