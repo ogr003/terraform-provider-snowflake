@@ -8,13 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"github.com/snowflakedb/terraform-provider-snowflake/sdk"
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/client"
 
 	"fmt"
 )
 
 type provider struct {
-	client *sdk.Client
+	client *client.Client
 }
 
 func New() tfsdk.Provider {
@@ -147,7 +147,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	client, err := sdk.NewClient(&sdk.Config{
+	client, err := client.NewClient(&client.Config{
 		Account:   config.Account.Value,
 		User:      config.User.Value,
 		Password:  config.Password.Value,

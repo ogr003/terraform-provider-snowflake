@@ -1,4 +1,4 @@
-package sdk
+package client
 
 import (
 	"context"
@@ -47,12 +47,6 @@ func DefaultConfig() *Config {
 
 type Client struct {
 	conn *sql.DB
-
-	Users      Users
-	Roles      Roles
-	Warehouses Warehouses
-	Databases  Databases
-	Schemas    Schemas
 }
 
 func NewClient(cfg *Config) (*Client, error) {
@@ -113,52 +107,55 @@ func NewClient(cfg *Config) (*Client, error) {
 	client := &Client{
 		conn: conn,
 	}
-
-	client.Users = &users{client: client}
-	client.Roles = &roles{client: client}
-	client.Warehouses = &warehouses{client: client}
-	client.Databases = &databases{client: client}
-	client.Schemas = &schemas{client: client}
-
 	return client, nil
 }
 
+// Close the client
 func (c *Client) Close() {
 	if c.conn != nil {
 		c.conn.Close()
 	}
 }
 
-func (c *Client) exec(ctx context.Context, sql string) (sql.Result, error) {
+// Exec a sql statement
+func (c *Client) Exec(ctx context.Context, sql string) (sql.Result, error) {
 	return c.conn.ExecContext(ctx, sql)
 }
 
-func (c *Client) query(ctx context.Context, sql string) (*sqlx.Rows, error) {
+// Query the resources with a sql statement
+func (c *Client) Query(ctx context.Context, sql string) (*sqlx.Rows, error) {
 	return sqlx.NewDb(c.conn, "snowflake-instrumented").Unsafe().QueryxContext(ctx, sql)
 }
 
-// drop a resource
-func (c *Client) drop(ctx context.Context, resource string, name string) error {
-	sql := fmt.Sprintf("DROP %s %s", resource, name)
-	if _, err := c.exec(ctx, sql); err != nil {
+// Drop a resource
+func (c *Client) Drop(ctx context.Context, resource string, name string) error {
+	sql := fmt.Sprintf(`DROP %s "%s"`, resource, name)
+	if _, err := c.Exec(ctx, sql); err != nil {
 		return fmt.Errorf("db exec: %w", err)
 	}
 	return nil
 }
 
-// rename a resource
-func (c *Client) rename(ctx context.Context, resource string, old string, new string) error {
-	sql := fmt.Sprintf("ALTER %s %s RENAME TO %s", resource, old, new)
-	if _, err := c.exec(ctx, sql); err != nil {
+// Undrop a resource
+func (c *Client) Undrop(ctx context.Context, resource string, name string) error {
+	sql := fmt.Sprintf(`UNDROP %s "%s"`, resource, name)
+	if _, err := c.Exec(ctx, sql); err != nil {
 		return fmt.Errorf("db exec: %w", err)
 	}
 	return nil
 }
 
-// read a resource
-func (c *Client) read(ctx context.Context, resources string, name string, v interface{}) error {
-	sql := fmt.Sprintf(`SHOW %s LIKE '%s'`, resources, name)
-	rows, err := c.query(ctx, sql)
+// Rename a resource
+func (c *Client) Rename(ctx context.Context, resource string, old string, new string) error {
+	sql := fmt.Sprintf(`ALTER %s "%s" RENAME TO "%s"`, resource, old, new)
+	if _, err := c.Exec(ctx, sql); err != nil {
+		return fmt.Errorf("db exec: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) Read(ctx context.Context, sql string, v interface{}) error {
+	rows, err := c.Query(ctx, sql)
 	if err != nil {
 		return fmt.Errorf("do query: %w", err)
 	}

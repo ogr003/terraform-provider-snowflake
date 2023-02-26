@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/snowflakedb/terraform-provider-snowflake/sdk"
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/user"
 )
 
 type datasourceUsersType struct {
@@ -102,12 +102,12 @@ func (d datasourceUsersType) NewDataSource(_ context.Context, prov tfsdk.Provide
 		return nil, diag.Diagnostics{errorConvertingProvider(d)}
 	}
 	return dsUsers{
-		p: provider,
+		u: user.New(provider.client),
 	}, nil
 }
 
 type dsUsers struct {
-	p *provider
+	u user.Users
 }
 
 type dsUsersData struct {
@@ -137,14 +137,14 @@ func (d dsUsers) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp
 		return
 	}
 
-	userList, err := d.p.client.Users.List(ctx, sdk.UserListOptions{
-		Pattern: data.Pattern,
+	users, err := d.u.List(ctx, user.ListOptions{
+		Name: data.Pattern,
 	})
 	if err != nil {
 		resp.Diagnostics.AddError("failed to list users: %s", err.Error())
 		return
 	}
-	for _, u := range userList {
+	for _, u := range users {
 		data.Users = append(data.Users, dsUserData{
 			Name:                  u.Name,
 			LoginName:             u.LoginName,

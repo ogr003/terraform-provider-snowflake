@@ -1,0 +1,53 @@
+package user
+
+import (
+	"context"
+	"errors"
+	"fmt"
+)
+
+// ListOptions represents the options for listing users.
+type ListOptions struct {
+	Name string
+}
+
+func (o ListOptions) validate() error {
+	if o.Name == "" {
+		return errors.New("name must not be empty")
+	}
+	return nil
+}
+
+// List all the users by list options.
+func (u *users) List(ctx context.Context, options ListOptions) ([]*User, error) {
+	if err := options.validate(); err != nil {
+		return nil, fmt.Errorf("validate list options: %w", err)
+	}
+
+	stmt := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceUsers, options.Name)
+	rows, err := u.client.Query(ctx, stmt)
+	if err != nil {
+		return nil, fmt.Errorf("do query: %w", err)
+	}
+	defer rows.Close()
+
+	entities := []*User{}
+	for rows.Next() {
+		var entity userEntity
+		if err := rows.StructScan(&entity); err != nil {
+			return nil, fmt.Errorf("rows scan: %w", err)
+		}
+		entities = append(entities, entity.toUser())
+	}
+	return entities, nil
+}
+
+// Read an user by its name.
+func (u *users) Read(ctx context.Context, name string) (*User, error) {
+	sql := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceUsers, name)
+	var entity userEntity
+	if err := u.client.Read(ctx, sql, &entity); err != nil {
+		return nil, err
+	}
+	return entity.toUser(), nil
+}
