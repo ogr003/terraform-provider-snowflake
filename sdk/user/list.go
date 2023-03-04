@@ -12,7 +12,7 @@ type ListOptions struct {
 
 func (o ListOptions) validate() error {
 	if o.Name == "" {
-		return errors.New("name must not be empty")
+		return errors.New("user name is required")
 	}
 	return nil
 }

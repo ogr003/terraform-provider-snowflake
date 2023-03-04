@@ -14,10 +14,10 @@ type ListOptions struct {
 
 func (o ListOptions) validate() error {
 	if o.Database == "" {
-		return errors.New("database name must not be empty")
+		return errors.New("database is required")
 	}
 	if o.Schema == "" {
-		return errors.New("schema name must not be empty")
+		return errors.New("schema is required")
 	}
 	return nil
 }

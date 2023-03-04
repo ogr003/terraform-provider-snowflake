@@ -71,29 +71,6 @@ func (e *maskingPolicyEntity) toMaskingPolicy() *MaskingPolicy {
 	}
 }
 
-type DescribeMaskingPolicy struct {
-	Name       string
-	Signature  string
-	ReturnType string
-	Body       string
-}
-
-type describeMaskingPolicyEntity struct {
-	Name       sql.NullString `db:"name"`
-	Signature  sql.NullString `db:"signature"`
-	ReturnType sql.NullString `db:"return_type"`
-	Body       sql.NullString `db:"body"`
-}
-
-func (d *describeMaskingPolicyEntity) toDescribeMaskingPolicy() *DescribeMaskingPolicy {
-	return &DescribeMaskingPolicy{
-		Name:       d.Name.String,
-		Signature:  d.Signature.String,
-		ReturnType: d.ReturnType.String,
-		Body:       d.Body.String,
-	}
-}
-
 func QualifiedName(name, db, schema string) string {
 	var b strings.Builder
 	if db != "" && schema != "" {
@@ -117,7 +94,7 @@ type Options struct {
 
 func (o Options) validate() error {
 	if o.Name == "" {
-		return errors.New("name must not be empty")
+		return errors.New("masking policy name is required")
 	}
 	return nil
 }

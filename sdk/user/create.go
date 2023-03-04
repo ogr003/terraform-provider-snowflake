@@ -28,7 +28,7 @@ type CreateOptions struct {
 
 func (o CreateOptions) validate() error {
 	if o.Name == "" {
-		return errors.New("user name must not be empty")
+		return errors.New("user name is required")
 	}
 	return nil
 }

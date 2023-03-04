@@ -8,6 +8,11 @@ import (
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/utils"
 )
 
+type describeUserEntity struct {
+	Property string         `db:"property"`
+	Value    sql.NullString `db:"value"`
+}
+
 func (u *users) Describe(ctx context.Context, name string) (*User, error) {
 	stmt := fmt.Sprintf(`DESCRIBE %s LIKE '%s'`, ResourceUser, name)
 	rows, err := u.client.Query(ctx, stmt)

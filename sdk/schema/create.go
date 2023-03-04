@@ -20,10 +20,10 @@ type CreateOptions struct {
 
 func (o CreateOptions) validate() error {
 	if o.Name == "" {
-		return errors.New("name must not be empty")
+		return errors.New("schema name is required")
 	}
 	if o.Database == "" {
-		return errors.New("database name must not be empty")
+		return errors.New("database is required")
 	}
 	return nil
 }

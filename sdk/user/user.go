@@ -70,11 +70,6 @@ type userEntity struct {
 	LoginName             sql.NullString `db:"login_name"`
 }
 
-type describeUserEntity struct {
-	Property string         `db:"property"`
-	Value    sql.NullString `db:"value"`
-}
-
 func (e *userEntity) toUser() *User {
 	var roles []string
 	if e.DefaultSecondaryRoles.Valid {

@@ -36,12 +36,10 @@ func New(c *client.Client) Schemas {
 	}
 }
 
-// schemas implements Schemas
 type schemas struct {
 	client *client.Client
 }
 
-// Schema represents a Snowflake schema.
 type Schema struct {
 	Name          string
 	Database      string
@@ -84,7 +82,7 @@ type Options struct {
 
 func (o Options) validate() error {
 	if o.Name == "" {
-		return fmt.Errorf("name is required")
+		return fmt.Errorf("schema name is required")
 	}
 	return nil
 }

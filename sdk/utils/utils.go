@@ -47,6 +47,11 @@ func EscapeString(in string) string {
 	return out
 }
 
+func EscapeSnowflakeString(in string) string {
+	out := strings.ReplaceAll(in, `'`, `''`)
+	return fmt.Sprintf(`'%v'`, out)
+}
+
 func ListToSnowflakeString(list []string) string {
 	for index, element := range list {
 		list[index] = fmt.Sprintf(`'%v'`, strings.ReplaceAll(element, "'", "\\'"))

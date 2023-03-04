@@ -1,4 +1,4 @@
-package tag
+package table
 
 import (
 	"context"
@@ -22,46 +22,38 @@ func (o ListOptions) validate() error {
 	return nil
 }
 
-func (t *tags) List(ctx context.Context, o ListOptions) ([]*Tag, error) {
+func (t *tables) List(ctx context.Context, o ListOptions) ([]*Table, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate list options: %w", err)
 	}
 
-	stmt := fmt.Sprintf(`SHOW %s IN SCHEMA "%s"."%s"`, ResourceTags, o.Database, o.Schema)
+	stmt := fmt.Sprintf(`SHOW %s IN SCHEMA "%s"."%s"`, ResourceTables, o.Database, o.Schema)
 	rows, err := t.client.Query(ctx, stmt)
 	if err != nil {
 		return nil, fmt.Errorf("do query: %w", err)
 	}
 	defer rows.Close()
 
-	entities := []*Tag{}
+	entities := []*Table{}
 	for rows.Next() {
-		var entity tagEntity
+		var entity tableEntity
 		if err := rows.StructScan(&entity); err != nil {
 			return nil, fmt.Errorf("rows scan: %w", err)
 		}
-		entities = append(entities, entity.toTag())
+		entities = append(entities, entity.toTable())
 	}
 	return entities, nil
 }
 
-func (t *tags) Read(ctx context.Context, o Options) (*Tag, error) {
+func (t *tables) Read(ctx context.Context, o Options) (*Table, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate read options: %w", err)
 	}
-
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`SHOW %s LIKE "%s"`, ResourceTags, o.Name))
-	if o.Database != "" {
-		if o.Schema != "" {
-			b.WriteString(fmt.Sprintf(` IN SCHEMA "%s"."%s"`, o.Database, o.Schema))
-		} else {
-			b.WriteString(fmt.Sprintf(` IN DATABASE "%s"`, o.Database))
-		}
-	}
-	var entity tagEntity
+	b.WriteString(fmt.Sprintf(`SHOW %s LIKE "%s" IN SCHEMA "%s"."%s"`, ResourceTables, o.Name, o.Database, o.Schema))
+	var entity tableEntity
 	if err := t.client.Read(ctx, b.String(), &entity); err != nil {
-		return nil, fmt.Errorf("read tag: %w", err)
+		return nil, fmt.Errorf("read table: %w", err)
 	}
-	return entity.toTag(), nil
+	return entity.toTable(), nil
 }

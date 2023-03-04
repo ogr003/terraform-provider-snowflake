@@ -46,7 +46,7 @@ func (t *tags) Update(ctx context.Context, o UpdateOptions) (*Tag, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate update options: %w", err)
 	}
-	stmt := fmt.Sprintf(`ALTER %s "%s" %s`, ResourceTag, QualifiedName(o.Name, o.Schema, o.Database), o.build())
+	stmt := fmt.Sprintf(`ALTER %s "%s" %s`, ResourceTag, QualifiedName(o.Name, o.Database, o.Schema), o.build())
 	if _, err := t.client.Exec(ctx, stmt); err != nil {
 		return nil, fmt.Errorf("db exec: %w", err)
 	}

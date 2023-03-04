@@ -102,7 +102,7 @@ type Options struct {
 
 func (o Options) validate() error {
 	if o.Name == "" {
-		return fmt.Errorf("name must not be empty")
+		return fmt.Errorf("tag name is required")
 	}
 	return nil
 }

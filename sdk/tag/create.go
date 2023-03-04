@@ -17,7 +17,7 @@ type CreateOptions struct {
 
 func (o CreateOptions) build() string {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf(`CREATE %s "%s"`, ResourceTag, QualifiedName(o.Name, o.Schema, o.Database)))
+	b.WriteString(fmt.Sprintf(`CREATE %s "%s"`, ResourceTag, QualifiedName(o.Name, o.Database, o.Schema)))
 	if o.AllowedValues != nil && *o.AllowedValues != "" {
 		b.WriteString(fmt.Sprintf(` ALLOWED_VALUES %s`, *o.AllowedValues))
 	}

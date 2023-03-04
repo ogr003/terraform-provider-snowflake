@@ -30,7 +30,7 @@ func (m *maskingPolicies) Update(ctx context.Context, o UpdateOptions) (*Masking
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate update options: %w", err)
 	}
-	stmt := fmt.Sprintf(`ALTER %s "%s" %s`, ResourceMaskingPolicy, QualifiedName(o.Name, o.Schema, o.Database), o.build())
+	stmt := fmt.Sprintf(`ALTER %s "%s" %s`, ResourceMaskingPolicy, QualifiedName(o.Name, o.Database, o.Schema), o.build())
 	if _, err := m.client.Exec(ctx, stmt); err != nil {
 		return nil, fmt.Errorf("db exec: %w", err)
 	}

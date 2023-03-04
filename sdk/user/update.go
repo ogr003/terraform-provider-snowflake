@@ -66,7 +66,7 @@ func (o UpdateOptions) build() string {
 
 func (u *users) Update(ctx context.Context, name string, o UpdateOptions) (*User, error) {
 	if name == "" {
-		return nil, errors.New("name must not be empty")
+		return nil, errors.New("user name is required")
 	}
 	stmt := fmt.Sprintf(`ALTER %s "%s" SET %s`, ResourceUser, name, o.build())
 	if _, err := u.client.Exec(ctx, stmt); err != nil {
