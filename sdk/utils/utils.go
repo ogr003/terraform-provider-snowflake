@@ -47,6 +47,15 @@ func EscapeString(in string) string {
 	return out
 }
 
+func QuoteStrings(s []string) []string {
+	clean := make([]string, 0, len(s))
+	for _, word := range s {
+		quoted := fmt.Sprintf(`"%s"`, word)
+		clean = append(clean, quoted)
+	}
+	return clean
+}
+
 func EscapeSnowflakeString(in string) string {
 	out := strings.ReplaceAll(in, `'`, `''`)
 	return fmt.Sprintf(`'%v'`, out)
