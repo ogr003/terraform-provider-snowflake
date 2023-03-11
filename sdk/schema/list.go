@@ -23,8 +23,8 @@ func (s *schemas) List(ctx context.Context, o ListOptions) ([]*Schema, error) {
 		return nil, fmt.Errorf("validate list options: %w", err)
 	}
 
-	sql := fmt.Sprintf(`SHOW %s IN DATABASE "%s"`, ResourceSchemas, o.Database)
-	rows, err := s.client.Query(ctx, sql)
+	stmt := fmt.Sprintf(`SHOW %s IN DATABASE "%s"`, ResourceSchemas, o.Database)
+	rows, err := s.client.Query(ctx, stmt)
 	if err != nil {
 		return nil, fmt.Errorf("do query: %w", err)
 	}

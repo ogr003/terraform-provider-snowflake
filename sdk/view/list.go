@@ -1,4 +1,4 @@
-package sequence
+package view
 
 import (
 	"context"
@@ -20,37 +20,37 @@ func (o ListOptions) validate() error {
 	return nil
 }
 
-func (s *sequences) List(ctx context.Context, o ListOptions) ([]*Sequence, error) {
+func (v *views) List(ctx context.Context, o ListOptions) ([]*View, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate list options: %w", err)
 	}
 
-	stmt := fmt.Sprintf(`SHOW %s IN SCHEMA "%s"."%s"`, ResourceSequences, o.Database, o.Schema)
-	rows, err := s.client.Query(ctx, stmt)
+	stmt := fmt.Sprintf(`SHOW %s IN SCHEMA "%s"."%s"`, ResourceViews, o.Database, o.Schema)
+	rows, err := v.client.Query(ctx, stmt)
 	if err != nil {
 		return nil, fmt.Errorf("do query: %w", err)
 	}
 	defer rows.Close()
 
-	entities := []*Sequence{}
+	entities := []*View{}
 	for rows.Next() {
-		var entity sequenceEntity
+		var entity viewEntity
 		if err := rows.StructScan(&entity); err != nil {
 			return nil, fmt.Errorf("rows scan: %w", err)
 		}
-		entities = append(entities, entity.toSequence())
+		entities = append(entities, entity.toView())
 	}
 	return entities, nil
 }
 
-func (s *sequences) Read(ctx context.Context, o Options) (*Sequence, error) {
+func (v *views) Read(ctx context.Context, o Options) (*View, error) {
 	if err := o.validate(); err != nil {
 		return nil, fmt.Errorf("validate read options: %w", err)
 	}
-	stmt := fmt.Sprintf(`SHOW %s LIKE "%s" IN SCHEMA "%s"."%s"`, ResourceSequences, o.Name, o.Database, o.Schema)
-	var entity sequenceEntity
-	if err := s.client.Read(ctx, stmt, &entity); err != nil {
-		return nil, fmt.Errorf("read sequence: %w", err)
+	stmt := fmt.Sprintf(`SHOW %s LIKE "%s" IN SCHEMA "%s"."%s"`, ResourceViews, o.Name, o.Database, o.Schema)
+	var entity viewEntity
+	if err := v.client.Read(ctx, stmt, &entity); err != nil {
+		return nil, fmt.Errorf("read view: %w", err)
 	}
-	return entity.toSequence(), nil
+	return entity.toView(), nil
 }

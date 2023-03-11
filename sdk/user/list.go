@@ -41,9 +41,9 @@ func (u *users) List(ctx context.Context, options ListOptions) ([]*User, error) 
 }
 
 func (u *users) Read(ctx context.Context, name string) (*User, error) {
-	sql := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceUsers, name)
+	stmt := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceUsers, name)
 	var entity userEntity
-	if err := u.client.Read(ctx, sql, &entity); err != nil {
+	if err := u.client.Read(ctx, stmt, &entity); err != nil {
 		return nil, err
 	}
 	return entity.toUser(), nil

@@ -15,10 +15,7 @@ type CreateOptions struct {
 }
 
 func (o CreateOptions) validate() error {
-	if err := o.Options.validate(); err != nil {
-		return err
-	}
-	return nil
+	return o.Options.validate()
 }
 
 func (o CreateOptions) build() string {

@@ -46,9 +46,9 @@ func (r *roles) List(ctx context.Context, o ListOptions) ([]*Role, error) {
 }
 
 func (r *roles) Read(ctx context.Context, name string) (*Role, error) {
-	sql := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceRoles, name)
+	stmt := fmt.Sprintf(`SHOW %s LIKE '%s'`, ResourceRoles, name)
 	var entity roleEntity
-	if err := r.client.Read(ctx, sql, &entity); err != nil {
+	if err := r.client.Read(ctx, stmt, &entity); err != nil {
 		return nil, err
 	}
 	return entity.toRole(), nil
