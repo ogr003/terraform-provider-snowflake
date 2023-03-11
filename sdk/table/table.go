@@ -24,6 +24,7 @@ type Tables interface {
 	Create(ctx context.Context, o CreateOptions) (*Table, error)
 	Read(ctx context.Context, o Options) (*Table, error)
 	Describe(ctx context.Context, o Options) ([]*DescribeTable, error)
+	Update(ctx context.Context, o UpdateOptions) (*Table, error)
 	Drop(ctx context.Context, o Options) error
 	Rename(ctx context.Context, old string, new string) error
 }
