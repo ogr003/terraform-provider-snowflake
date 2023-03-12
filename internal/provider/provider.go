@@ -2,26 +2,27 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"github.com/snowflakedb/terraform-provider-snowflake/internal/provider/datasources"
+	"github.com/snowflakedb/terraform-provider-snowflake/internal/provider/resources"
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/client"
-
-	"fmt"
 )
 
-type provider struct {
+type Provider struct {
 	client *client.Client
 }
 
 func New() tfsdk.Provider {
-	return &provider{}
+	return &Provider{}
 }
 
-func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (p *Provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "A provider for managing Snowflake",
 		Attributes: map[string]tfsdk.Attribute{
@@ -65,7 +66,7 @@ func (p *provider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics)
 	}, nil
 }
 
-type providerData struct {
+type providerConfig struct {
 	Account   types.String `tfsdk:"account"`
 	User      types.String `tfsdk:"user"`
 	Password  types.String `tfsdk:"password"`
@@ -75,8 +76,8 @@ type providerData struct {
 	Warehouse types.String `tfsdk:"warehouse"`
 }
 
-func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
-	var config providerData
+func (p *Provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+	var config providerConfig
 	if diags := req.Config.Get(ctx, &config); diags.HasError() {
 		resp.Diagnostics = diags
 		return
@@ -156,7 +157,6 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		Host:      config.Host.Value,
 		Warehouse: config.Warehouse.Value,
 	})
-
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating snowflake client", err.Error())
 		return
@@ -164,20 +164,23 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	p.client = client
 }
 
-func (p *provider) GetResources(_ context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
+func (p *Provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		//"snowflake_user": userType{},
+		"snowflake_user": resources.NewUser(p.client),
 	}, nil
 }
 
-func (p *provider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
+func (p *Provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
 	return map[string]tfsdk.DataSourceType{
-		"snowflake_users": datasourceUsersType{},
+		"snowflake_users": datasources.NewUsers(p.client),
 	}, nil
 }
 
-func errorConvertingProvider(typ interface{}) diag.ErrorDiagnostic {
-	return diag.NewErrorDiagnostic("Error converting provider", fmt.Sprintf("An unexpected error was encountered converting the provider. This is always a bug in the provider.\n\nType: %T", typ))
+func ErrorConvertingProvider(typ interface{}) diag.ErrorDiagnostic {
+	return diag.NewErrorDiagnostic(
+		"Error converting provider",
+		fmt.Sprintf("An unexpected error was encountered converting the provider. This is always a bug in the provider.\n\nType: %T", typ),
+	)
 }
 
 func addAttributeMustBeSetError(resp *tfsdk.ConfigureProviderResponse, attr string) {

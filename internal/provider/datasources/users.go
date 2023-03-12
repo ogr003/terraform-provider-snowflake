@@ -1,4 +1,4 @@
-package provider
+package datasources
 
 import (
 	"context"
@@ -6,13 +6,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/client"
 	"github.com/snowflakedb/terraform-provider-snowflake/sdk/user"
 )
 
-type datasourceUsersType struct {
+type Users struct {
+	users user.Users
 }
 
-func (datasourceUsersType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewUsers(client *client.Client) *Users {
+	return &Users{
+		users: user.New(client),
+	}
+}
+
+func (u *Users) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "Users Data Source for the Snowflake Provider",
 		Attributes: map[string]tfsdk.Attribute{
@@ -96,25 +104,16 @@ func (datasourceUsersType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 	}, nil
 }
 
-func (d datasourceUsersType) NewDataSource(_ context.Context, prov tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	provider, ok := prov.(*provider)
-	if !ok {
-		return nil, diag.Diagnostics{errorConvertingProvider(d)}
-	}
-	return dsUsers{
-		u: user.New(provider.client),
-	}, nil
+func (u *Users) NewDataSource(ctx context.Context, prov tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return u, nil
 }
 
-type dsUsers struct {
-	u user.Users
+type UserData struct {
+	Pattern string        `tfsdk:"pattern"`
+	Users   []*UserEntity `tfsdk:"users"`
 }
 
-type dsUsersData struct {
-	Pattern string       `tfsdk:"pattern"`
-	Users   []dsUserData `tfsdk:"users"`
-}
-type dsUserData struct {
+type UserEntity struct {
 	Name                  string   `tfsdk:"name"`
 	LoginName             string   `tfsdk:"login_name"`
 	Comment               string   `tfsdk:"comment"`
@@ -130,22 +129,21 @@ type dsUserData struct {
 	LastName              string   `tfsdk:"last_name"`
 }
 
-func (d dsUsers) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
-	var data dsUsersData
+func (u *Users) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	var data UserData
 	if diags := req.Config.Get(ctx, &data); diags.HasError() {
 		resp.Diagnostics = diags
 		return
 	}
-
-	users, err := d.u.List(ctx, user.ListOptions{
+	users, err := u.users.List(ctx, user.ListOptions{
 		Name: data.Pattern,
 	})
 	if err != nil {
-		resp.Diagnostics.AddError("failed to list users: %s", err.Error())
+		resp.Diagnostics.AddError("list users: %s", err.Error())
 		return
 	}
 	for _, u := range users {
-		data.Users = append(data.Users, dsUserData{
+		data.Users = append(data.Users, &UserEntity{
 			Name:                  u.Name,
 			LoginName:             u.LoginName,
 			Comment:               u.Comment,

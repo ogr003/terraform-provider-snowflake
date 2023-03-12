@@ -1,4 +1,4 @@
-package provider
+package resources
 
 import (
 	"context"
@@ -6,12 +6,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/snowflakedb/terraform-provider-snowflake/internal/provider/utils"
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/client"
+	"github.com/snowflakedb/terraform-provider-snowflake/sdk/user"
 )
 
-type resourceUserType struct {
+type User struct {
+	users user.Users
 }
 
-func (r resourceUserType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewUser(client *client.Client) *User {
+	return &User{
+		users: user.New(client),
+	}
+}
+
+func (u *User) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "User Resource for the Snowflake Provider",
 		Attributes: map[string]tfsdk.Attribute{
@@ -26,7 +36,7 @@ func (r resourceUserType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagn
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					caseInsensitive{},
+					utils.CaseInsensitive{},
 				},
 			},
 			"comment": {
@@ -55,7 +65,7 @@ func (r resourceUserType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagn
 				Type:     types.StringType,
 				Optional: true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					caseInsensitive{},
+					utils.CaseInsensitive{},
 				},
 				Description: "Specifies the namespace (database only or database and schema) that is active by default for the user’s session upon login.",
 			},
@@ -113,70 +123,26 @@ func (r resourceUserType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagn
 				Optional:    true,
 				Description: "Last name of the user.",
 			},
-			//"tag": tagReferenceSchema,
-
-			//    MIDDLE_NAME = <string>
-			//    SNOWFLAKE_LOCK = TRUE | FALSE
-			//    SNOWFLAKE_SUPPORT = TRUE | FALSE
-			//    DAYS_TO_EXPIRY = <integer>
-			//    MINS_TO_UNLOCK = <integer>
-			//    EXT_AUTHN_DUO = TRUE | FALSE
-			//    EXT_AUTHN_UID = <string>
-			//    MINS_TO_BYPASS_MFA = <integer>
-			//    DISABLE_MFA = TRUE | FALSE
-			//    MINS_TO_BYPASS_NETWORK POLICY = <integer>
 		},
 	}, nil
 }
 
-func (r resourceUserType) NewResource(_ context.Context, prov tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
-	provider, ok := prov.(*provider)
-	if !ok {
-		return nil, diag.Diagnostics{errorConvertingProvider(r)}
-	}
-	return resourceUser{
-		p: provider,
-	}, nil
+func (u *User) NewResource(ctx context.Context, provider tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+	return u, nil
 }
 
-type resourceUser struct {
-	p *provider
+// Create resource
+func (u *User) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 }
 
-func (r resourceUser) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
-}
-
-// Read resource information
-func (r resourceUser) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+// Read resource
+func (u *User) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
 }
 
 // Update resource
-func (r resourceUser) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (u *User) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 }
 
 // Delete resource
-func (r resourceUser) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
-}
-
-// UserResource -
-type UserResource struct {
-	ID                    types.String `tfsdk:"id"`
-	Name                  types.String `tfsdk:"name"`
-	LoginName             types.String `tfsdk:"login_name"`
-	Comment               types.String `tfsdk:"comment"`
-	Password              types.String `tfsdk:"password"`
-	Disabled              types.Bool   `tfsdk:"disabled"`
-	DefaultWarehouse      types.String `tfsdk:"default_warehouse"`
-	DefaultNamespace      types.String `tfsdk:"default_namespace"`
-	DefaultRole           types.String `tfsdk:"default_role"`
-	DefaultSecondaryRoles types.Set    `tfsdk:"default_secondary_roles"`
-	RSAPublicKey          types.String `tfsdk:"rsa_public_key"`
-	RSAPublicKey2         types.String `tfsdk:"rsa_public_key_2"`
-	HasRSAPublicKey       types.Bool   `tfsdk:"has_rsa_public_key"`
-	MustChangePassword    types.Bool   `tfsdk:"must_change_password"`
-	Email                 types.String `tfsdk:"email"`
-	DisplayName           types.String `tfsdk:"display_name"`
-	FirstName             types.String `tfsdk:"first_name"`
-	LastName              types.String `tfsdk:"last_name"`
-	//Tag tagReference `tfsdk:"tag"`
+func (u *User) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 }
