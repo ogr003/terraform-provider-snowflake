@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.65.0](https://github.com/Snowflake-Labs/terraform-provider-snowflake/compare/v0.64.0...v0.65.0) (2023-05-12)
+
+
+### Features
+
+* allow all priv on grants ([#1786](https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/1786)) ([aa3f873](https://github.com/Snowflake-Labs/terraform-provider-snowflake/commit/aa3f873b4669c5942c10681151d6afd4ea03623f))
+
+
+### Misc
+
+* Migrate Warehouse resource + datasource to new SDK ([#1792](https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/1792)) ([a14b994](https://github.com/Snowflake-Labs/terraform-provider-snowflake/commit/a14b994d62f73c272cde72651c3c8c18ac4213cf))
+
+
+### BugFixes
+
+* reading warehouse with underscore in name ([#1793](https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/1793)) ([5e184fa](https://github.com/Snowflake-Labs/terraform-provider-snowflake/commit/5e184fab4cbabcf27f290eb79c01a0cd6cc79282))
+
 ## [0.64.0](https://github.com/Snowflake-Labs/terraform-provider-snowflake/compare/v0.63.0...v0.64.0) (2023-05-09)
 
 
